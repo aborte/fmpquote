@@ -1,10 +1,10 @@
 """
 FMP Ultimate API 中文接口文档（附开箱即用 SDK）
-Financial Modeling Prep (FMP) 国内直连 Python 轻量客户端
+Financial Modeling Prep (FMP) Python 轻量客户端
 
-- 官方网站（FMP数据源中文站）：https://fmpquote.com/
-- 5分钟快速接入与免费领取专属 Key：https://fmpquote.com/quick-start/
-- 283 个中文 API 接口文档总览：https://fmpquote.com/apis/
+- 在线文档首页：https://fmpquote.com/
+- 快速接入指南：https://fmpquote.com/quick-start/
+- 283 个中文 API 接口目录：https://fmpquote.com/apis/
 """
 
 from .client import (
@@ -27,7 +27,7 @@ from .client import (
     treasury_rates,
 )
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __all__ = [
     "DEFAULT_API_KEY",
     "GATEWAY_BASE_URL",

@@ -1,5 +1,5 @@
 """
-fmpquote 单元测试套件（无需网络请求即可验证核心逻辑）
+fmpquote 单元测试套件
 运行方式：python -m unittest discover -s tests -v
 """
 

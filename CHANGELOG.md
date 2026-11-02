@@ -2,6 +2,12 @@
 
 All notable changes to `fmpquote` will be documented in this file.
 
+## [0.2.1] - 2026-11-02
+
+### Changed
+- 精简快速上手示例脚本 `examples/quickstart.py` 与文档注释说明。
+- 更新包元信息与作者署名。
+
 ## [0.2.0] - 2026-11-02
 
 ### Added
@@ -17,4 +23,3 @@ All notable changes to `fmpquote` will be documented in this file.
 
 ### Added
 - 初始版本发布：支持零第三方依赖调用 `/stable/` 全系接口（`quote`、`income_statement`、`balance_sheet`、`cash_flow`、`ratios_ttm`、`key_metrics_ttm`、`dcf`、`eod_chart`、`earnings_transcript`、`treasury_rates`）。
-- 内置公共体验 Key 支持开箱即用测试。

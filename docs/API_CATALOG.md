@@ -1,6 +1,6 @@
 # Financial Modeling Prep (FMP Ultimate API) `/stable/` 核心接口路径速查表
 
-> 完整 283 个接口的参数字典、返回字段类型与实盘 JSON 示例请参阅 **[FMP数据源中文站接口中心](https://fmpquote.com/apis/)**。
+> 完整 283 个接口的参数字典、返回字段类型与实盘 JSON 示例请参阅 **[FMP 中文接口文档中心](https://fmpquote.com/apis/)**。
 
 | 分类模块 | 接口中文名称 | `/stable/` 端点路径 | 必选参数 | 典型返回字段 |
 | :--- | :--- | :--- | :--- | :--- |

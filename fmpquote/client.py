@@ -1,6 +1,6 @@
 """
-Financial Modeling Prep (FMP Ultimate API) 国内直连 Python 客户端核心实现
-完整中文接口文档与字段字典请参阅：https://fmpquote.com/apis/
+Financial Modeling Prep (FMP Ultimate API) Python 客户端核心实现
+接口参数与返回字段字典：https://fmpquote.com/apis/
 """
 
 import json
@@ -11,16 +11,12 @@ import urllib.parse
 import urllib.request
 from typing import Any, Dict, Optional, Union
 
-# 国内直连高可用加速网关（免代理直接访问 Financial Modeling Prep `/stable/` 全系接口）
+# FMP API `/stable/` 接入端点
 GATEWAY_BASE_URL = "https://quote-fmp.com/stable"
 
-# ---------------------------------------------------------------------------
-# 内置公用 FMP Ultimate 免费体验 Key（开箱即用，支持跨市场示范标的直接调通）
-# ---------------------------------------------------------------------------
+# 默认内置公共测试 Key（支持跨市场示范标的直接调用）
 DEFAULT_API_KEY = "Hqn1wUDEAFxfzkjo"
-
-# 备用公共体验 Key（如遇默认 Key 当日公共额度用满，可传入此 Key 使用）：
-# BACKUP_API_KEY = "rVJrTXQBRiyNyGqZ"
+# 备用公共测试 Key: rVJrTXQBRiyNyGqZ
 
 
 class FMPAPIError(RuntimeError):
@@ -35,7 +31,7 @@ class FMPAPIError(RuntimeError):
 
 def doc_url(slug: str) -> str:
     """
-    返回指定接口在 FMP数据源中文站 的完整中文文档地址。
+    返回指定接口的中文文档地址。
     示例：doc_url("income-statement") -> "https://fmpquote.com/apis/income-statement/"
     """
     clean = slug.strip().strip("/")
@@ -53,7 +49,7 @@ def format_cik(cik: Union[str, int]) -> str:
 def normalize_hk_symbol(symbol: str) -> str:
     """
     港股代码归一化：FMP 上游采用 4 位数字港股代码（如 0700.HK），
-    当开发者传入国内常见的 5 位代码（如 00700.HK）时自动转为 0700.HK。
+    当传入 5 位代码（如 00700.HK）时自动转为 0700.HK。
     """
     s = str(symbol).strip()
     if s.upper().endswith(".HK"):
@@ -69,10 +65,9 @@ class FMPClient:
 
     参数说明：
     - api_key: FMP API Key。若不传，优先读取环境变量 `FMP_API_KEY`；
-               若环境变量也未设置，则默认使用内置体验 Key `DEFAULT_API_KEY`（Hqn1wUDEAFxfzkjo）。
-               如遇默认体验 Key 公共额度用满，可传入备用体验 Key `"rVJrTXQBRiyNyGqZ"`，
-               或访问 https://fmpquote.com/quick-start/ 免费领取专属 Key。
-    - base_url: 默认使用国内直连网关 `https://quote-fmp.com/stable`。
+               未设置环境变量时使用内置默认测试 Key `DEFAULT_API_KEY`。
+               个人专属 Key 可在 https://fmpquote.com/quick-start/ 免费获取。
+    - base_url: 默认端点 `https://quote-fmp.com/stable`。
     - timeout: 单次 HTTP 请求超时秒数（默认 15 秒）。
     """
 
@@ -86,12 +81,12 @@ class FMPClient:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self._headers = {
-            "User-Agent": "fmpquote-python-sdk/0.2.0",
+            "User-Agent": "fmpquote-python-sdk/0.2.1",
             "Accept": "application/json",
         }
 
     def build_query_params(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """构建带港股代码归一化与 apikey 的请求参数字典"""
+        """构建请求查询参数字典"""
         query: Dict[str, Any] = {}
         if params:
             for k, v in params.items():
@@ -126,7 +121,7 @@ class FMPClient:
         max_retries: int = 2,
     ) -> Any:
         """
-        通用 GET 请求方法（支持 `/stable/<endpoint>` 全系接口，零第三方依赖开箱即用）
+        通用 GET 请求方法（支持 `/stable/<endpoint>` 全系接口）
         """
         ep = endpoint.strip().lstrip("/")
         if ep.startswith("stable/"):
@@ -148,7 +143,6 @@ class FMPClient:
                     return pd.DataFrame(data)
                 return data
 
-            # 解析服务端返回的 Error Message
             err_msg = resp_text
             try:
                 payload = json.loads(resp_text)
@@ -162,12 +156,10 @@ class FMPClient:
             except ValueError:
                 pass
 
-            # 400 / 401 / 403 权限或参数错误不重试，直接抛出异常
             if status_code in (400, 401, 403):
                 raise FMPAPIError(status_code, err_msg, endpoint=ep)
 
             if status_code == 429:
-                # 若触发配额上限则停止重试
                 if "Demo key" in err_msg or "Bandwidth" in err_msg or "体验" in err_msg:
                     raise FMPAPIError(status_code, err_msg, endpoint=ep)
                 if attempt < max_retries:
@@ -243,7 +235,7 @@ class FMPClient:
         to_date: Optional[str] = None,
         as_df: bool = False,
     ) -> Any:
-        """获取历史日线 OHLCV 与四价均值 VWAP 行情序列（`/stable/historical-price-eod/full`）"""
+        """获取历史日线 OHLCV 行情序列（`/stable/historical-price-eod/full`）"""
         return self.get(
             "historical-price-eod/full",
             {"symbol": symbol, "from": from_date, "to": to_date},
@@ -270,7 +262,7 @@ class FMPClient:
         to_date: Optional[str] = None,
         as_df: bool = False,
     ) -> Any:
-        """获取美国国债全期限收益率曲线（1月期至30年期，无股票代码限制）"""
+        """获取美国国债全期限收益率曲线（1月期至30年期）"""
         return self.get(
             "treasury-rates",
             {"from": from_date, "to": to_date},
@@ -279,7 +271,7 @@ class FMPClient:
 
 
 # ---------------------------------------------------------------------------
-# 顶层快捷函数（无需先实例化 FMPClient，一行代码直接调用）
+# 顶层快捷函数
 # ---------------------------------------------------------------------------
 _default_client = FMPClient()
 

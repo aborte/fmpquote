@@ -1,20 +1,14 @@
 """
-FMP Ultimate API 中文接口文档（附开箱即用 SDK） — 3 分钟快速实盘演示脚本
-官方网站：https://fmpquote.com/
-完整接口目录：https://fmpquote.com/apis/
+FMP Ultimate API 中文接口文档（附开箱即用 SDK） — 快速演示脚本
+在线文档：https://fmpquote.com/apis/
 """
 
-from fmpquote import FMPClient, FMPAPIError
+from fmpquote import FMPClient
 
-# 1. 默认内置体验 Key（无需注册即可直接调通示范标的）
-DEMO_KEY = "Hqn1wUDEAFxfzkjo"
+# 默认内置测试 Key（也可替换为个人专属 Key 或备用测试 Key: rVJrTXQBRiyNyGqZ）
+client = FMPClient()
 
-# 备用体验 Key：
-# DEMO_KEY = "rVJrTXQBRiyNyGqZ"
-
-client = FMPClient(api_key=DEMO_KEY)
-
-print("=== 1. 跨市场实时报价实测（美股 AAPL / 港股 00700.HK / A股 600519.SS / 加密 BTCUSD）===")
+print("=== 1. 跨市场实时报价（美股 AAPL / 港股 00700.HK / A股 600519.SS / 加密 BTCUSD）===")
 for ticker in ["AAPL", "00700.HK", "600519.SS", "BTCUSD"]:
     res = client.quote(ticker)
     if res:
@@ -47,9 +41,3 @@ if rates:
         f"  日期: {latest.get('date')} | 3月期: {latest.get('month3')}% | "
         f"2年期: {latest.get('year2')}% | 10年期: {latest.get('year10')}% | 30年期: {latest.get('year30')}%"
     )
-
-print("\n=== 5. 异常捕获示例（以查询非示范标的 BABA 为例）===")
-try:
-    client.quote("BABA")
-except FMPAPIError as e:
-    print("  捕获异常 ->", e)

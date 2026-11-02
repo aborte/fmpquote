@@ -7,31 +7,16 @@
 
 面向中文量化投研与金融开发者的 **Financial Modeling Prep（简称 FMP）中文接口速查文档与零依赖 Python 客户端（`fmpquote`）**。
 
-在美股、港股与全球跨市场量化开发中，直接对接海外源站常遇到三类工程阻碍：
-1. **官方 Free 档权限受限**：无法直接验证 `13F` 机构持仓、财报电话会议纪要（`Earnings Transcript`）、港股/A股财报与分钟级行情的数据结构；
-2. **字段口径缺少 Point-in-Time 说明**：全站 283 个 `/stable/` 接口、5,467 个返回字段缺乏中文会计口径与防回测未来函数校对；
-3. **跨境连接易超时**：国内环境直连海外源站延迟高、易触发网络抖动。
+在美股、港股与全球跨市场量化开发中，直接对接上游 API 常遇到三类痛点：
+1. **官方 Free 档端点受限**：无法直接测试 `13F` 机构持仓、财报电话会议纪要（`Earnings Transcript`）、港股/A股财报与分钟级行情的数据结构；
+2. **字段缺少 Point-in-Time 口径说明**：全站 283 个 `/stable/` 接口、5,467 个返回字段缺乏中文会计口径与防回测未来函数校对；
+3. **跨境网络抖动**：国内环境直连海外源站延迟较高。
 
-本仓库内置了 **2 把开箱即用的公用 FMP Ultimate 体验 Key** 与国内直连网关（`https://quote-fmp.com/stable`），安装后零配置即可调通跨市场示范标的真实数据。
-
----
-
-## 一、 内置 FMP Ultimate 体验 Key
-
-本仓库提供 2 把具备 **Ultimate 端点权限** 的公共体验 Key 供直接测试：
-
-| 类型 | Key | 说明 |
-| :--- | :--- | :--- |
-| **默认体验 Key** | `Hqn1wUDEAFxfzkjo` | SDK 默认内置，不传 `api_key` 参数时自动生效 |
-| **备用体验 Key** | `rVJrTXQBRiyNyGqZ` | 如遇默认 Key 公共额度用满，可通过 `FMPClient(api_key="rVJrTXQBRiyNyGqZ")` 传入 |
-
-- **公共体验 Key 适用范围**：
-  - 支持跨市场核心示范标的：美股 `AAPL`、`NVDA`、`TSLA`、`MSFT`、`AMZN`、`META`、`GOOGL`、`AMD`、`AVGO`；港股 `00700.HK` / `0700.HK`；A 股 `600519.SS`、`300750.SZ`；以及 `SPY`、`^GSPC`、`EURUSD`、`BTCUSD`、`GCUSD` 和无代码限制的宏观国债接口（`/stable/treasury-rates`）。
-  - 如需查询全美股 10,000+ 标的与退市股票池，可前往 [FMP数据源中文站](https://fmpquote.com/) 或查看 [5分钟快速接入指南](https://fmpquote.com/quick-start/) 免费领取个人独享试用 Key。
+本仓库整理了 FMP 核心接口中文速查指引，并在 SDK 中预置了公共测试 Key（同时提供备用测试 Key `rVJrTXQBRiyNyGqZ`），安装后零配置即可调通跨市场示范标的真实数据。
 
 ---
 
-## 二、 快速安装与 Point-in-Time 量化实战
+## 一、 快速安装与 Point-in-Time 量化实战
 
 ### 1. 安装
 
@@ -46,7 +31,7 @@ pip install "fmpquote[pandas]"
 ```python
 from fmpquote import FMPClient
 
-# 默认使用内置体验 Key (Hqn1wUDEAFxfzkjo)，也可传入自定义或备用 Key：FMPClient(api_key="rVJrTXQBRiyNyGqZ")
+# 不传参时自动使用 SDK 内置默认测试 Key；也可显式传入测试 Key "rVJrTXQBRiyNyGqZ" 或个人专属 Key
 client = FMPClient()
 
 # 1) 跨市场实时报价（港股 5 位代码 00700.HK 会自动归一化为 FMP 标准 4 位 0700.HK）
@@ -67,11 +52,17 @@ rates = client.treasury_rates()[0]
 print("MSFT ROE(TTM):", ratios.get("returnOnEquityTTM"), "| 10Y美债收益率:", rates.get("year10"))
 ```
 
+### 3. 公共测试 Key 支持的示范标的
+- **美股科技与巨头**：`AAPL`、`NVDA`、`TSLA`、`MSFT`、`AMZN`、`META`、`GOOGL`、`AMD`、`AVGO`
+- **港股与 A 股**：`00700.HK` / `0700.HK`（腾讯控股）、`600519.SS`（贵州茅台）、`300750.SZ`（宁德时代）
+- **ETF、指数、外汇、加密与大宗商品**：`SPY`、`^GSPC`、`EURUSD`、`BTCUSD`、`GCUSD`，以及无代码限制的宏观国债接口（`/stable/treasury-rates`）。
+- 如需查询全美股 10,000+ 标的与退市股票池，可前往 [FMP 中文文档站](https://fmpquote.com/) 或查看 [5分钟快速接入指南](https://fmpquote.com/quick-start/) 免费获取个人独享 Key。
+
 ---
 
-## 三、 核心分类导航与接口速查
+## 二、 核心分类导航与接口速查
 
-全站 283 个接口已整理为结构化中文手册，详细端点路径表可查阅仓库内的 [`docs/API_CATALOG.md`](docs/API_CATALOG.md)，或直接访问在线分类目录：
+全站 283 个接口已整理为结构化中文手册，常用端点路径表可查阅仓库内的 [`docs/API_CATALOG.md`](docs/API_CATALOG.md)，或访问在线分类目录：
 
 | 数据域分类 | 核心 `/stable/` 端点路径 | 量化与投研典型用途 |
 | :--- | :--- | :--- |
@@ -89,7 +80,7 @@ print("MSFT ROE(TTM):", ratios.get("returnOnEquityTTM"), "| 10Y美债收益率:"
 
 ---
 
-## 四、 仓库目录结构与本地测试
+## 三、 仓库目录结构与本地测试
 
 ```text
 fmpquote/
