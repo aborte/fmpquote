@@ -19,14 +19,12 @@ GATEWAY_BASE_URL = "https://quote-fmp.com/stable"
 # ---------------------------------------------------------------------------
 DEFAULT_API_KEY = "Hqn1wUDEAFxfzkjo"
 
-# 备用公用体验 Key（注：程序不会自动切换 Key！若上方默认 Key 当日公共额度用完，
-# 请手动复制下方注释中的备用 Key 传入 FMPClient(api_key="rVJrTXQBRiyNyGqZ")，
-# 或前往 https://fmpquote.com/ 免费领取个人独享 Key）：
+# 备用公共体验 Key（如遇默认 Key 当日公共额度用满，可传入此 Key 使用）：
 # BACKUP_API_KEY = "rVJrTXQBRiyNyGqZ"
 
 
 class FMPAPIError(RuntimeError):
-    """FMP API 请求异常（原样透传网关状态码与双语提示信息）"""
+    """FMP API 请求异常"""
 
     def __init__(self, status_code: int, message: str, endpoint: str = ""):
         self.status_code = status_code
@@ -71,8 +69,8 @@ class FMPClient:
 
     参数说明：
     - api_key: FMP API Key。若不传，优先读取环境变量 `FMP_API_KEY`；
-               若环境变量也未设置，则默认使用内置公开体验 Key `DEFAULT_API_KEY`（Hqn1wUDEAFxfzkjo）。
-               若默认体验 Key 公共额度用尽，可手动传入备用体验 Key `"rVJrTXQBRiyNyGqZ"`，
+               若环境变量也未设置，则默认使用内置体验 Key `DEFAULT_API_KEY`（Hqn1wUDEAFxfzkjo）。
+               如遇默认体验 Key 公共额度用满，可传入备用体验 Key `"rVJrTXQBRiyNyGqZ"`，
                或访问 https://fmpquote.com/quick-start/ 免费领取专属 Key。
     - base_url: 默认使用国内直连网关 `https://quote-fmp.com/stable`。
     - timeout: 单次 HTTP 请求超时秒数（默认 15 秒）。
@@ -93,7 +91,7 @@ class FMPClient:
         }
 
     def build_query_params(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """构建带港股代码归一化与 apikey 的请求参数字典（便于单元测试校验）"""
+        """构建带港股代码归一化与 apikey 的请求参数字典"""
         query: Dict[str, Any] = {}
         if params:
             for k, v in params.items():
@@ -150,7 +148,7 @@ class FMPClient:
                     return pd.DataFrame(data)
                 return data
 
-            # 解析服务端返回的 Error Message（含公用 Key 示范标的/额度提示链接）
+            # 解析服务端返回的 Error Message
             err_msg = resp_text
             try:
                 payload = json.loads(resp_text)
@@ -164,12 +162,12 @@ class FMPClient:
             except ValueError:
                 pass
 
-            # 若触发额度用尽或非白名单标的（400 / 401 / 403），不自动切换 Key，直接原样抛出提示
+            # 400 / 401 / 403 权限或参数错误不重试，直接抛出异常
             if status_code in (400, 401, 403):
                 raise FMPAPIError(status_code, err_msg, endpoint=ep)
 
             if status_code == 429:
-                # 若是公用体验 Key 额度耗尽或 30 天流量耗尽，立即停止重试并展示领 Key 引导
+                # 若触发配额上限则停止重试
                 if "Demo key" in err_msg or "Bandwidth" in err_msg or "体验" in err_msg:
                     raise FMPAPIError(status_code, err_msg, endpoint=ep)
                 if attempt < max_retries:

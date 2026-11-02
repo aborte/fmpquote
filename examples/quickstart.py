@@ -6,10 +6,10 @@ FMP Ultimate API 中文接口文档（附开箱即用 SDK） — 3 分钟快速�
 
 from fmpquote import FMPClient, FMPAPIError
 
-# 1. 默认内置公开 FMP Ultimate 体验 Key（无需注册即可直接调通示范标的）
+# 1. 默认内置体验 Key（无需注册即可直接调通示范标的）
 DEMO_KEY = "Hqn1wUDEAFxfzkjo"
 
-# 备用公开体验 Key（程序不会自动切换；若上方 DEMO_KEY 当日公共额度用尽，可手动取消下方注释替换使用）：
+# 备用体验 Key：
 # DEMO_KEY = "rVJrTXQBRiyNyGqZ"
 
 client = FMPClient(api_key=DEMO_KEY)
@@ -48,8 +48,8 @@ if rates:
         f"2年期: {latest.get('year2')}% | 10年期: {latest.get('year10')}% | 30年期: {latest.get('year30')}%"
     )
 
-print("\n=== 5. 演示查询非示范标的 (如 BABA) 时的网关引导提示 ===")
+print("\n=== 5. 异常捕获示例（以查询非示范标的 BABA 为例）===")
 try:
     client.quote("BABA")
 except FMPAPIError as e:
-    print("  触发预期提示 ->", e)
+    print("  捕获异常 ->", e)

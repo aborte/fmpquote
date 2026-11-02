@@ -16,18 +16,18 @@
 
 ---
 
-## 一、 内置公用 FMP Ultimate 体验 Key 与切换说明
+## 一、 内置 FMP Ultimate 体验 Key
 
-本仓库在代码与文档中提供 2 把具备 **Ultimate 旗舰级端点权限** 的公共体验 Key：
+本仓库提供 2 把具备 **Ultimate 端点权限** 的公共体验 Key 供直接测试：
 
-| Key 类型 | Key 明文 | 生效与切换方式（人工复制，程序不自动切换） |
+| 类型 | Key | 说明 |
 | :--- | :--- | :--- |
-| **代码默认 Key** | `Hqn1wUDEAFxfzkjo` | 已内置于 `fmpquote/client.py` 的 `DEFAULT_API_KEY`，不传参时默认使用 |
-| **文档/注释备用 Key** | `rVJrTXQBRiyNyGqZ` | 记录在本表与源码注释中。**程序不会自动切换 Key**；若默认 Key 当日公共额度耗尽，请手动复制传入 `FMPClient(api_key="rVJrTXQBRiyNyGqZ")` |
+| **默认体验 Key** | `Hqn1wUDEAFxfzkjo` | SDK 默认内置，不传 `api_key` 参数时自动生效 |
+| **备用体验 Key** | `rVJrTXQBRiyNyGqZ` | 如遇默认 Key 公共额度用满，可通过 `FMPClient(api_key="rVJrTXQBRiyNyGqZ")` 传入 |
 
-- **公用体验 Key 适用范围**：
+- **公共体验 Key 适用范围**：
   - 支持跨市场核心示范标的：美股 `AAPL`、`NVDA`、`TSLA`、`MSFT`、`AMZN`、`META`、`GOOGL`、`AMD`、`AVGO`；港股 `00700.HK` / `0700.HK`；A 股 `600519.SS`、`300750.SZ`；以及 `SPY`、`^GSPC`、`EURUSD`、`BTCUSD`、`GCUSD` 和无代码限制的宏观国债接口（`/stable/treasury-rates`）。
-  - 如需解锁全美股 10,000+ 标的与退市股票池，可前往 [FMP数据源中文站](https://fmpquote.com/) 或查看 [5分钟快速接入指南](https://fmpquote.com/quick-start/) 免费领取个人独享试用 Key。
+  - 如需查询全美股 10,000+ 标的与退市股票池，可前往 [FMP数据源中文站](https://fmpquote.com/) 或查看 [5分钟快速接入指南](https://fmpquote.com/quick-start/) 免费领取个人独享试用 Key。
 
 ---
 
@@ -46,8 +46,7 @@ pip install "fmpquote[pandas]"
 ```python
 from fmpquote import FMPClient
 
-# 默认使用内置体验 Key (Hqn1wUDEAFxfzkjo)；若公共额度用尽可手动替换为备用 Key：
-# client = FMPClient(api_key="rVJrTXQBRiyNyGqZ")
+# 默认使用内置体验 Key (Hqn1wUDEAFxfzkjo)，也可传入自定义或备用 Key：FMPClient(api_key="rVJrTXQBRiyNyGqZ")
 client = FMPClient()
 
 # 1) 跨市场实时报价（港股 5 位代码 00700.HK 会自动归一化为 FMP 标准 4 位 0700.HK）
