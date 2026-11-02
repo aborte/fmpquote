@@ -2,6 +2,12 @@
 
 All notable changes to `fmpquote` will be documented in this file.
 
+## [0.2.2] - 2026-11-02
+
+### Changed
+- 将 `requires-python` 版本要求统一收窄为 `>=3.10`（与 Python 3.10–3.12 矩阵测试保持一致）。
+- 统一源码、标签与发布包版本号为 `0.2.2`。
+
 ## [0.2.1] - 2026-11-02
 
 ### Changed

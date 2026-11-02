@@ -81,7 +81,7 @@ class FMPClient:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self._headers = {
-            "User-Agent": "fmpquote-python-sdk/0.2.1",
+            "User-Agent": "fmpquote-python-sdk/0.2.2",
             "Accept": "application/json",
         }
 
