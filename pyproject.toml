@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fmpquote"
+version = "0.1.0"
+description = "FMP API 中文文档与Ultimate Key 免费使用指南（附开箱即用 SDK）— Financial Modeling Prep 国内直连 Python 客户端"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+authors = [
+    {name = "FMP数据源中文站技术团队"}
+]
+keywords = [
+    "FMP",
+    "Financial Modeling Prep",
+    "FMP API",
+    "FMP中文文档",
+    "FMP Ultimate Key",
+    "美股API",
+    "量化金融",
+    "10-K",
+    "13F",
+    "fmpquote"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: Chinese (Simplified)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Investment",
+]
+dependencies = []
+
+[project.optional-dependencies]
+requests = ["requests>=2.25.0"]
+pandas = ["pandas>=1.3.0"]
+
+[project.urls]
+"Homepage" = "https://fmpquote.com/"
+"Documentation" = "https://fmpquote.com/apis/"
+"Quickstart & Free Key" = "https://fmpquote.com/quick-start/"
+"Financial Formulas" = "https://fmpquote.com/formulas/"
+"Quant Blog & Tutorials" = "https://fmpquote.com/blog/"
+"FAQ & Troubleshooting" = "https://fmpquote.com/faq/"
+"Source Repository" = "https://github.com/aborte/fmpquote"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fmpquote*"]

@@ -1,0 +1,60 @@
+"""
+FMP API 中文文档与Ultimate Key 免费使用指南 — 3 分钟快速实盘演示脚本
+官方网站：https://fmpquote.com/
+完整接口目录：https://fmpquote.com/apis/
+"""
+
+from fmpquote import FMPClient, FMPAPIError
+
+# 1. 默认内置公开 FMP Ultimate 体验 Key（无需注册即可直接调通示范标的）
+DEMO_KEY = "Hqn1wUDEAFxfzkjo"
+
+# 备用公开体验 Key（程序不会自动切换；若上方 DEMO_KEY 当日公共额度用尽，可手动取消下方注释替换使用）：
+# DEMO_KEY = "rVJrTXQBRiyNyGqZ"
+
+client = FMPClient(api_key=DEMO_KEY)
+
+print("=== 1. 跨市场实时报价实测（美股 AAPL / 港股 00700.HK / A股 600519.SS / 加密 BTCUSD）===")
+# 接口中文文档：https://fmpquote.com/apis/stock-quote/
+for ticker in ["AAPL", "00700.HK", "600519.SS", "BTCUSD"]:
+    res = client.quote(ticker)
+    if res:
+        q = res[0]
+        print(f"  {q.get('symbol'):<10} | 最新价: {q.get('price'):<10} | 涨跌幅: {q.get('changePercentage')}% | 名称: {q.get('name')}")
+
+print("\n=== 2. 英伟达 (NVDA) 最新 10-K 年度利润表与 SEC 真实披露时刻 (acceptedDate) ===")
+# 接口中文文档：https://fmpquote.com/apis/income-statement/
+inc = client.income_statement("NVDA", period="annual", limit=2)
+for row in inc:
+    print(
+        f"  财年期末(date): {row.get('date')} | SEC披露时刻(acceptedDate): {row.get('acceptedDate')} "
+        f"| 营收: ${row.get('revenue', 0) / 1e9:.2f}B | 净利润: ${row.get('netIncome', 0) / 1e9:.2f}B"
+    )
+
+print("\n=== 3. 微软 (MSFT) 滚动十二个月 (TTM) 核心财务比率 ===")
+# 接口中文文档：https://fmpquote.com/apis/financial-ratios-ttm/
+# 财务公式速查表：https://fmpquote.com/formulas/
+ratios = client.ratios_ttm("MSFT")
+if ratios:
+    r = ratios[0]
+    print(
+        f"  PE(TTM): {r.get('priceToEarningsRatioTTM'):.2f} | "
+        f"PB(TTM): {r.get('priceToBookRatioTTM'):.2f} | "
+        f"净利率(TTM): {r.get('netProfitMarginTTM') * 100:.2f}%"
+    )
+
+print("\n=== 4. 宏观无风险利率：美国国债全期限收益率曲线 ===")
+# 接口中文文档：https://fmpquote.com/apis/treasury-rates/
+rates = client.treasury_rates()
+if rates:
+    latest = rates[0]
+    print(
+        f"  日期: {latest.get('date')} | 3月期: {latest.get('month3')}% | "
+        f"2年期: {latest.get('year2')}% | 10年期: {latest.get('year10')}% | 30年期: {latest.get('year30')}%"
+    )
+
+print("\n=== 5. 演示查询非示范标的 (如 BABA) 时的网关引导提示 ===")
+try:
+    client.quote("BABA")
+except FMPAPIError as e:
+    print("  触发预期提示 ->", e)
