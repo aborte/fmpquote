@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fmpquote"
-version = "0.1.0"
-description = "FMP API 中文文档与Ultimate Key 免费使用指南（附开箱即用 SDK）— Financial Modeling Prep 国内直连 Python 客户端"
+version = "0.2.0"
+description = "FMP Ultimate API 中文接口文档（附开箱即用 SDK）"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.8"
@@ -15,9 +15,8 @@ authors = [
 keywords = [
     "FMP",
     "Financial Modeling Prep",
-    "FMP API",
+    "FMP Ultimate API",
     "FMP中文文档",
-    "FMP Ultimate Key",
     "美股API",
     "量化金融",
     "10-K",
@@ -25,7 +24,7 @@ keywords = [
     "fmpquote"
 ]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Financial and Insurance Industry",
     "License :: OSI Approved :: MIT License",

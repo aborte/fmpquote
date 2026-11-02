@@ -1,5 +1,5 @@
 """
-Financial Modeling Prep (FMP) 国内直连 Python 客户端核心实现
+Financial Modeling Prep (FMP Ultimate API) 国内直连 Python 客户端核心实现
 完整中文接口文档与字段字典请参阅：https://fmpquote.com/apis/
 """
 
@@ -47,15 +47,27 @@ def doc_url(slug: str) -> str:
 def format_cik(cik: Union[str, int]) -> str:
     """
     将 SEC CIK 编号统一补齐为标准 10 位前导零字符串（如 1067983 -> '0001067983'）。
-    对应文档：https://fmpquote.com/apis/form13f/
     """
     digits = "".join(ch for ch in str(cik).strip() if ch.isdigit())
     return digits.zfill(10)
 
 
+def normalize_hk_symbol(symbol: str) -> str:
+    """
+    港股代码归一化：FMP 上游采用 4 位数字港股代码（如 0700.HK），
+    当开发者传入国内常见的 5 位代码（如 00700.HK）时自动转为 0700.HK。
+    """
+    s = str(symbol).strip()
+    if s.upper().endswith(".HK"):
+        code_part = s[:-3]
+        if len(code_part) == 5 and code_part.isdigit() and code_part.startswith("0"):
+            return f"{code_part[1:]}.HK"
+    return s
+
+
 class FMPClient:
     """
-    Financial Modeling Prep (FMP) 轻量 Python 客户端
+    Financial Modeling Prep (FMP Ultimate API) 轻量 Python 客户端
 
     参数说明：
     - api_key: FMP API Key。若不传，优先读取环境变量 `FMP_API_KEY`；
@@ -76,9 +88,21 @@ class FMPClient:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self._headers = {
-            "User-Agent": "fmpquote-python-sdk/0.1.0",
+            "User-Agent": "fmpquote-python-sdk/0.2.0",
             "Accept": "application/json",
         }
+
+    def build_query_params(self, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """构建带港股代码归一化与 apikey 的请求参数字典（便于单元测试校验）"""
+        query: Dict[str, Any] = {}
+        if params:
+            for k, v in params.items():
+                if v is not None:
+                    if k == "symbol" and isinstance(v, str):
+                        v = normalize_hk_symbol(v)
+                    query[k] = v
+        query["apikey"] = self.api_key
+        return query
 
     def _http_get(self, url: str, query: Dict[str, Any]) -> tuple[int, Dict[str, str], str]:
         qs = urllib.parse.urlencode(query)
@@ -105,24 +129,12 @@ class FMPClient:
     ) -> Any:
         """
         通用 GET 请求方法（支持 `/stable/<endpoint>` 全系接口，零第三方依赖开箱即用）
-        完整 283 个接口路径与参数说明：https://fmpquote.com/apis/
         """
         ep = endpoint.strip().lstrip("/")
         if ep.startswith("stable/"):
             ep = ep[len("stable/"):]
         url = f"{self.base_url}/{ep}"
-
-        query: Dict[str, Any] = {}
-        if params:
-            for k, v in params.items():
-                if v is not None:
-                    # 港股代码兼容：FMP 上游使用 4 位数字（如 0700.HK），若传入 5 位 00700.HK 自动归一化
-                    if k == "symbol" and isinstance(v, str) and v.upper().endswith(".HK"):
-                        code_part = v[:-3]
-                        if len(code_part) == 5 and code_part.isdigit() and code_part.startswith("0"):
-                            v = f"{code_part[1:]}.HK"
-                    query[k] = v
-        query["apikey"] = self.api_key
+        query = self.build_query_params(params)
 
         for attempt in range(max_retries + 1):
             status_code, resp_headers, resp_text = self._http_get(url, query)
@@ -169,10 +181,7 @@ class FMPClient:
             raise FMPAPIError(status_code, err_msg, endpoint=ep)
 
     def quote(self, symbol: str = "AAPL", as_df: bool = False) -> Any:
-        """
-        获取股票、ETF、指数、外汇、加密货币最新实时报价（`/stable/quote`）
-        中文文档：https://fmpquote.com/apis/stock-quote/
-        """
+        """获取股票、ETF、指数、外汇、加密货币最新实时报价（`/stable/quote`）"""
         return self.get("quote", {"symbol": symbol}, as_df=as_df)
 
     def income_statement(
@@ -182,10 +191,7 @@ class FMPClient:
         limit: int = 5,
         as_df: bool = False,
     ) -> Any:
-        """
-        获取利润表数据（支持年报 `annual` / 季报 `quarter`，含 SEC `acceptedDate` 披露时间戳）
-        中文文档：https://fmpquote.com/apis/income-statement/
-        """
+        """获取利润表数据（支持年报 `annual` / 季报 `quarter`，含 SEC `acceptedDate` 披露时间戳）"""
         return self.get(
             "income-statement",
             {"symbol": symbol, "period": period, "limit": limit},
@@ -199,10 +205,7 @@ class FMPClient:
         limit: int = 5,
         as_df: bool = False,
     ) -> Any:
-        """
-        获取资产负债表数据（`/stable/balance-sheet-statement`）
-        中文文档：https://fmpquote.com/apis/balance-sheet-statement/
-        """
+        """获取资产负债表数据（`/stable/balance-sheet-statement`）"""
         return self.get(
             "balance-sheet-statement",
             {"symbol": symbol, "period": period, "limit": limit},
@@ -216,10 +219,7 @@ class FMPClient:
         limit: int = 5,
         as_df: bool = False,
     ) -> Any:
-        """
-        获取现金流量表数据（`/stable/cash-flow-statement`）
-        中文文档：https://fmpquote.com/apis/cash-flow-statement/
-        """
+        """获取现金流量表数据（`/stable/cash-flow-statement`）"""
         return self.get(
             "cash-flow-statement",
             {"symbol": symbol, "period": period, "limit": limit},
@@ -227,25 +227,15 @@ class FMPClient:
         )
 
     def ratios_ttm(self, symbol: str = "NVDA", as_df: bool = False) -> Any:
-        """
-        获取滚动十二个月（TTM）核心财务比率（PE/PB/ROE/ROIC/毛利率/净利率等）
-        中文文档：https://fmpquote.com/apis/financial-ratios-ttm/
-        计算公式字典：https://fmpquote.com/formulas/
-        """
+        """获取滚动十二个月（TTM）核心财务比率（PE/PB/ROE/ROIC/毛利率/净利率等）"""
         return self.get("ratios-ttm", {"symbol": symbol}, as_df=as_df)
 
     def key_metrics_ttm(self, symbol: str = "NVDA", as_df: bool = False) -> Any:
-        """
-        获取 TTM 关键经营与估值指标（EV/EBITDA、自由现金流收益率、研发强度等）
-        中文文档：https://fmpquote.com/apis/key-metrics-ttm/
-        """
+        """获取 TTM 关键经营与估值指标（EV/EBITDA、自由现金流收益率、研发强度等）"""
         return self.get("key-metrics-ttm", {"symbol": symbol}, as_df=as_df)
 
     def dcf(self, symbol: str = "AAPL", as_df: bool = False) -> Any:
-        """
-        获取 DCF 自由现金流折现估值测算结果（`/stable/discounted-cash-flow`）
-        中文文档：https://fmpquote.com/apis/dcf-valuation/
-        """
+        """获取 DCF 自由现金流折现估值测算结果（`/stable/discounted-cash-flow`）"""
         return self.get("discounted-cash-flow", {"symbol": symbol}, as_df=as_df)
 
     def eod_chart(
@@ -255,10 +245,7 @@ class FMPClient:
         to_date: Optional[str] = None,
         as_df: bool = False,
     ) -> Any:
-        """
-        获取历史日线 OHLCV 与四价均值 VWAP 行情序列（`/stable/historical-price-eod/full`）
-        中文文档：https://fmpquote.com/apis/stock-price-and-volume-data/
-        """
+        """获取历史日线 OHLCV 与四价均值 VWAP 行情序列（`/stable/historical-price-eod/full`）"""
         return self.get(
             "historical-price-eod/full",
             {"symbol": symbol, "from": from_date, "to": to_date},
@@ -272,10 +259,7 @@ class FMPClient:
         quarter: int = 4,
         as_df: bool = False,
     ) -> Any:
-        """
-        获取公司财报电话会议纪要全文（管理层陈述与分析师 Q&A 问答实录）
-        中文文档：https://fmpquote.com/apis/earnings-transcript/
-        """
+        """获取公司财报电话会议纪要全文（管理层陈述与分析师 Q&A 问答实录）"""
         return self.get(
             "earning-call-transcript",
             {"symbol": symbol, "year": year, "quarter": quarter},
@@ -288,10 +272,7 @@ class FMPClient:
         to_date: Optional[str] = None,
         as_df: bool = False,
     ) -> Any:
-        """
-        获取美国国债全期限收益率曲线（1月期至30年期，无股票代码限制）
-        中文文档：https://fmpquote.com/apis/treasury-rates/
-        """
+        """获取美国国债全期限收益率曲线（1月期至30年期，无股票代码限制）"""
         return self.get(
             "treasury-rates",
             {"from": from_date, "to": to_date},

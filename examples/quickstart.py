@@ -1,5 +1,5 @@
 """
-FMP API 中文文档与Ultimate Key 免费使用指南 — 3 分钟快速实盘演示脚本
+FMP Ultimate API 中文接口文档（附开箱即用 SDK） — 3 分钟快速实盘演示脚本
 官方网站：https://fmpquote.com/
 完整接口目录：https://fmpquote.com/apis/
 """
@@ -15,7 +15,6 @@ DEMO_KEY = "Hqn1wUDEAFxfzkjo"
 client = FMPClient(api_key=DEMO_KEY)
 
 print("=== 1. 跨市场实时报价实测（美股 AAPL / 港股 00700.HK / A股 600519.SS / 加密 BTCUSD）===")
-# 接口中文文档：https://fmpquote.com/apis/stock-quote/
 for ticker in ["AAPL", "00700.HK", "600519.SS", "BTCUSD"]:
     res = client.quote(ticker)
     if res:
@@ -23,7 +22,6 @@ for ticker in ["AAPL", "00700.HK", "600519.SS", "BTCUSD"]:
         print(f"  {q.get('symbol'):<10} | 最新价: {q.get('price'):<10} | 涨跌幅: {q.get('changePercentage')}% | 名称: {q.get('name')}")
 
 print("\n=== 2. 英伟达 (NVDA) 最新 10-K 年度利润表与 SEC 真实披露时刻 (acceptedDate) ===")
-# 接口中文文档：https://fmpquote.com/apis/income-statement/
 inc = client.income_statement("NVDA", period="annual", limit=2)
 for row in inc:
     print(
@@ -32,8 +30,6 @@ for row in inc:
     )
 
 print("\n=== 3. 微软 (MSFT) 滚动十二个月 (TTM) 核心财务比率 ===")
-# 接口中文文档：https://fmpquote.com/apis/financial-ratios-ttm/
-# 财务公式速查表：https://fmpquote.com/formulas/
 ratios = client.ratios_ttm("MSFT")
 if ratios:
     r = ratios[0]
@@ -44,7 +40,6 @@ if ratios:
     )
 
 print("\n=== 4. 宏观无风险利率：美国国债全期限收益率曲线 ===")
-# 接口中文文档：https://fmpquote.com/apis/treasury-rates/
 rates = client.treasury_rates()
 if rates:
     latest = rates[0]
