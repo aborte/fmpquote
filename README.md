@@ -5,7 +5,7 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/fmpquote.svg)](https://pypi.org/project/fmpquote/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-面向中文量化投研与金融开发者的 **Financial Modeling Prep（简称 FMP）中文接口速查文档与零依赖 Python 客户端（`fmpquote`）**。
+面向中文量化投研与金融开发者的 **Financial Modeling Prep（简称 FMP）中文接口速查文档与零依赖 Python 客户端（`fmpquote`）**。文档站链接：https://fmpquote.com/
 
 在美股、港股与全球跨市场量化开发中，直接对接上游 API 常遇到三类痛点：
 1. **官方 Free 档端点受限**：无法直接测试 `13F` 机构持仓、财报电话会议纪要（`Earnings Transcript`）、港股/A股财报与分钟级行情的数据结构；
