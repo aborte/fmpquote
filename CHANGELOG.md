@@ -2,6 +2,12 @@
 
 All notable changes to `fmpquote` will be documented in this file.
 
+## [0.2.3] - 2026-11-26
+
+### Changed
+- 默认网关接入端点由 `https://api.fmpquote.com/stable` 切换为网站二级域名 `https://api.fmpquote.com/stable`（旧域名保留并存兼容）。
+- 同步更新客户端 User-Agent 与版本文档至 `0.2.3`。
+
 ## [0.2.2] - 2026-11-02
 
 ### Changed

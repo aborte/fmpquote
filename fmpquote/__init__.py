@@ -27,7 +27,7 @@ from .client import (
     treasury_rates,
 )
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 __all__ = [
     "DEFAULT_API_KEY",
     "GATEWAY_BASE_URL",

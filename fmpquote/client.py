@@ -12,7 +12,7 @@ import urllib.request
 from typing import Any, Dict, Optional, Union
 
 # FMP API `/stable/` 接入端点
-GATEWAY_BASE_URL = "https://quote-fmp.com/stable"
+GATEWAY_BASE_URL = "https://api.fmpquote.com/stable"
 
 # 默认内置公共测试 Key（支持跨市场示范标的直接调用）
 DEFAULT_API_KEY = "Hqn1wUDEAFxfzkjo"
@@ -67,7 +67,7 @@ class FMPClient:
     - api_key: FMP API Key。若不传，优先读取环境变量 `FMP_API_KEY`；
                未设置环境变量时使用内置默认测试 Key `DEFAULT_API_KEY`。
                个人专属 Key 可在 https://fmpquote.com/quick-start/ 免费获取。
-    - base_url: 默认端点 `https://quote-fmp.com/stable`。
+    - base_url: 默认端点 `https://api.fmpquote.com/stable`。
     - timeout: 单次 HTTP 请求超时秒数（默认 15 秒）。
     """
 
@@ -81,7 +81,7 @@ class FMPClient:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self._headers = {
-            "User-Agent": "fmpquote-python-sdk/0.2.2",
+            "User-Agent": "fmpquote-python-sdk/0.2.3",
             "Accept": "application/json",
         }
 
